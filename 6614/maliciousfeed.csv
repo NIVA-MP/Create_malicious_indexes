@@ -4,3 +4,4 @@ https://feeds.honeynet.asia/bruteforce/latest-telnetbruteforce-unique.csv,csv,ho
 https://s3.i02.estaleiro.serpro.gov.br/blocklist/blocklist.txt,txt,serpro_ip_blocklist,ip
 https://api.cybercure.ai/feed/get_ips?type=json,json,cybercure_ip_blocklist,ip
 https://feodotracker.abuse.ch/downloads/ipblocklist.json,json,feodotracker_abuse_ip_blocklist,ip
+https://lists.blocklist.de/lists/all.txt,txt,list__ip_blocklist_de,ip
