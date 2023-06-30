@@ -281,4 +281,4 @@ if __name__ == "__main__":
     ips.deduplicate()
     # Transform o resultado em um dicionário
     resultado_ips = ips.return_result_dict()
-    # print(resultado_ips)
+    print(len(list(resultado_ips.keys())))
