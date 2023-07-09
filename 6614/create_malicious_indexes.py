@@ -4,6 +4,7 @@ import csv
 import numpy as np
 import socket
 import time
+import random
 
 # Função que retorna todos os dados de umd dataset armazenado em CSV
 def read_csv(name):
@@ -179,8 +180,12 @@ class maliciousIP():
                 loop_iterator += 1
                 continue
 
+            feeds_np = np.array(self.feeds_ip, dtype=str)
+            ip_np = np.array(self.feeds_ip[loop_iterator], dtype=str)
+
             # Retorna um array com True em posições em que self.feeds_ip == ip
-            equal = np.equal(np.array(self.feeds_ip), np.array(self.feeds_ip[loop_iterator]))
+            # equal = np.equal(np.array(self.feeds_ip), np.array(self.feeds_ip[loop_iterator]))
+            equal = np.equal(feeds_np, ip_np)
             # Retorna o índice dos elementos que são iguais a ip
             where_equal = np.where(equal == True)[0]
             # Pega a primeira aparência de ip em self.feeds_ip
@@ -250,10 +255,6 @@ class maliciousIP():
     def create_malicious_ip_index():
         pass
 
-CONFIG = {'ENDPOINT_SEARCH' : 'avantData/search/customSearch',
-         'HOST' : '10.20.170.1/',
-         'ENDPOINT_INSERT' : '2.0/avantData/index/bulk/upsert',
-        }
 
 # Verifica se a deduplicação foi feita corretamente
 def check_deduplication(resultado):
@@ -270,6 +271,36 @@ def check_deduplication(resultado):
             print(ip)
             print(where_equal)
 
+CONFIG = {'ENDPOINT_SEARCH' : 'avantData/search/customSearch',
+         'HOST' : '10.20.170.1/',
+         'ENDPOINT_INSERT' : '2.0/avantData/index/bulk/upsert',
+        }
+
+HEADERS = {'cluster' : 'AvantData'}
+
+# Função para busca customizada na API do AvantData
+def customSearch(query):
+    payload_request = query
+    req = requests.post('http://{0}/{1}'.format(CONFIG['HOST'], CONFIG['ENDPOINT_SEARCH']), json=payload_request, verify=False, headers=HEADERS )
+    data = json.loads(req.text)
+    return data
+
+# Função que indexa os dados no índice
+def indexData(loteData):
+
+    [ doc.update({'_id' : random.randint(0,99999) + random.randint(0,88888) } ) for doc in loteData ] # add field in doc lote
+
+    payload = {'index' : 'malicious_ip_feed',
+               'type' : 'malicious_ip_feed',
+               'body' : loteData
+            }
+    try:
+        r = requests.put('http://{}/{}'.format(CONFIG['HOST'], CONFIG['ENDPOINT_INSERT']), headers={'cluster' : 'AvantData'}, json=payload, verify=False)
+        print(r.text, r.status_code)
+    except Exception as erro:
+        print(erro)
+    return
+
 if __name__ == "__main__":
 
     ips = maliciousIP()
@@ -281,4 +312,14 @@ if __name__ == "__main__":
     ips.deduplicate()
     # Transform o resultado em um dicionário
     resultado_ips = ips.return_result_dict()
-    print(len(list(resultado_ips.keys())))
+    ips_list = list(resultado_ips.keys())
+    #print(resultado_ips)
+
+    # ips_list = {"192.168.0.1":"oi", "192.168.0.2":"ola"}
+    
+    for ip in ips_list:
+         # Indexa 
+         #print("Indexando: {} {}".format({ip,resultado_ips[ip]}))
+         print("indexando: {}".format(ip))
+         indexData([{'ip':ip, 'type':resultado_ips[ip]}])
+         exit()

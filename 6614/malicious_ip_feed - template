@@ -1,0 +1,64 @@
+{
+	"malicious_ip_feed": {
+		"order": 1,
+		"template": "malicious_ip_feed*",
+		"settings": {
+			"index": {
+				"refresh_interval": "5s",
+				"analysis": {
+					"analyzer": {
+						"WS": {
+							"filter": [
+								"lowercase"
+							],
+							"type": "custom",
+							"tokenizer": "whitespace"
+						}
+					}
+				},
+				"number_of_shards": "4",
+				"number_of_replicas": "1"
+			}
+		},
+		"mappings": {
+			"malicious_ip_feed": {
+				"_all": {
+					"norms": false,
+					"enabled": true
+				},
+				"_size": {
+					"enabled": true
+				},
+				"properties": {
+					"ip": {
+						"type": "text",
+						"fields": {
+							"keyword": {
+								"type": "keyword",
+								"ignore_above": 256
+							}
+						},
+						"analyzer": "WS"
+					},
+					"type": {
+						"type": "text",
+						"fields": {
+							"keyword": {
+								"type": "keyword",
+								"ignore_above": 256
+							}
+						},
+						"analyzer": "WS"
+					},
+					"GenerateTime": {
+						"type": "date",
+						"format": "yyyy/MM/dd HH:mm:ss||epoch_millis"
+					}
+				}
+			}
+		},
+		"aliases": {
+			"malicious_ip_feed": []
+		}
+	}
+}
