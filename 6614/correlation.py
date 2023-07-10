@@ -4,6 +4,8 @@ import csv
 import numpy as np
 import socket
 import time
+import timeit
+
 
 CONFIG = {'ENDPOINT_SEARCH' : 'avantData/search/customSearch',
          'HOST' : '10.20.170.1/',
@@ -80,7 +82,7 @@ class correlation():
                         formato_must = {'query_string': {'query': '(Computer: vp1*)'}}
 
                         # Modifica a query do must com os parâmetros de filtros em search
-                        formato_must["query_string"]["query"] = '(\"{}\": \"{}\")'.format(key, search[key])
+                        formato_must["query_string"]["query"] = '({}: {})'.format(key, search[key])
 
                         # Insere o format_must modificado no array must da search_query
                         search_query["body"]["query"]["bool"]["must"].append(formato_must)
@@ -111,10 +113,16 @@ class correlation():
             print("No results for configured search in the base index.")
             exit()
 
+
+        result_count = 0
         # Loop para cada um dos resultados da pesquisa base
         for result in result_base:
             # Pega os resultados da pesquisa
             result = result["_source"]
+
+            # print("\n")
+            # print(result_count)
+            # print(result)
 
             # Query montada para o formato passado em search_2
             second_search = self.queries[1]
@@ -132,7 +140,7 @@ class correlation():
                 if search_structure[search_parameter] == None:
 
                     # Cria um filtro em must com o campo da pesquisa e o valor
-                    formato_must["query_string"]["query"] = '(\"{}\": \"{}\")'.format(search_parameter, 
+                    formato_must["query_string"]["query"] = '({}: {})'.format(search_parameter, 
                                                                                       result[replace_array[replace_iterator]])
                     
                     # Insere o format_must modificado no array must da search_query
@@ -148,13 +156,13 @@ class correlation():
                     if search_parameter != "GenerateTime":
 
                         # Cria um filtro em must com o campo da pesquisa e o valor
-                        formato_must["query_string"]["query"] = '(\"{}\": \"{}\")'.format(search_parameter, 
+                        formato_must["query_string"]["query"] = '({}: {})'.format(search_parameter, 
                                                                                         search_structure[search_parameter])
                         
                         # Insere o format_must modificado no array must da search_query
                         second_search["body"]["query"]["bool"]["must"].append(formato_must)
 
-            # print("\n")
+            
             # print(second_search)
 
             # Faz as buscas na API do ElasticSearch
@@ -162,6 +170,8 @@ class correlation():
 
             # Reinicia os parâmetros de pesquisa
             self.queries[1]["body"]["query"]["bool"]["must"].clear()
+
+            # result_count += 1
 
     # Método que envia a pesquisa criada na API
     def correlation_search(self, search):
@@ -172,6 +182,8 @@ class correlation():
 
         # Verifica se houveram resultados para a pesquisa
         if len(result) != 0:
+
+            # print("MALICIOUS")
 
             # Pega os campos do resultado
             result_fields = result['_source']
@@ -185,7 +197,7 @@ if __name__ == "__main__":
     search_1 = {
         "ip":"*",
         "type":"*",
-        "GenerateTime":"now-30s"
+        "GenerateTime":"now-5h"
     }
 
     search_2 = {
@@ -196,7 +208,6 @@ if __name__ == "__main__":
         "user_name":"*",
         "src_port":"*",
         "dst_port":"*",
-        "type":None,
         "GenerateTime":"now-1m"
     }
 
@@ -205,14 +216,22 @@ if __name__ == "__main__":
         "dst_ip":"ip"
     }
 
-    correlate = correlation([search_1, search_2], ["index_1", "index_2"], None)
+    correlate = correlation([search_1, search_2], ["malicious_ip_feed", "SOPHOS"], None)
     correlate.search_query_construct()
 
     # correlate.replace_None_with(["ip"])
-    #result_base = correlate.search_base()
-    result_base = [{"_source":{"ip":"192.168.0.1","type":"snort_malicious_feed"}}, {"_source":{"ip":"192.168.0.2","type":"daniel_malicious_feed"}}, 
-                   {"_source":{"ip":"192.168.0.3","type":"algum_malicious_feed"}}]
+    result_base = correlate.search_base()
+
+    # result_base = [{"_source":{"ip":"192.168.0.1","type":"snort_malicious_feed"}}, {"_source":{"ip":"192.168.0.2","type":"daniel_malicious_feed"}}, 
+    #                {"_source":{"ip":"192.168.0.3","type":"algum_malicious_feed"}}]
     
-    correlate.construct_second(result_base,["ip","type"])
+    # print("\n")
+    start = time.time()
+    correlate.construct_second(result_base,["ip"])
+    end = time.time()
+
+    print(end-start)
+
+
     # if result_base != None:
     #    result_correlation = correlate.search_correlate(result_base, search_2, ["ip","type"])

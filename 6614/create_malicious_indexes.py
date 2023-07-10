@@ -182,10 +182,11 @@ class maliciousIP():
 
             feeds_np = np.array(self.feeds_ip, dtype=str)
             ip_np = np.array(self.feeds_ip[loop_iterator], dtype=str)
-
+            
             # Retorna um array com True em posições em que self.feeds_ip == ip
             # equal = np.equal(np.array(self.feeds_ip), np.array(self.feeds_ip[loop_iterator]))
-            equal = np.equal(feeds_np, ip_np)
+            # equal = np.equal(feeds_np, ip_np)
+            equal = feeds_np == ip_np
             # Retorna o índice dos elementos que são iguais a ip
             where_equal = np.where(equal == True)[0]
             # Pega a primeira aparência de ip em self.feeds_ip
@@ -313,13 +314,17 @@ if __name__ == "__main__":
     # Transform o resultado em um dicionário
     resultado_ips = ips.return_result_dict()
     ips_list = list(resultado_ips.keys())
+    print(len(ips_list))
     #print(resultado_ips)
 
     # ips_list = {"192.168.0.1":"oi", "192.168.0.2":"ola"}
     
+    index_iterator = 0
     for ip in ips_list:
-         # Indexa 
-         #print("Indexando: {} {}".format({ip,resultado_ips[ip]}))
-         print("indexando: {}".format(ip))
+         print(index_iterator)
+         # Indexa no índice malicious_ip_feed
          indexData([{'ip':ip, 'type':resultado_ips[ip]}])
-         exit()
+
+         index_iterator += 1
+
+         
