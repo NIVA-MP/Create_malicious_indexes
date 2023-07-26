@@ -1,0 +1,7 @@
+https://snort.org/downloads/ip-block-list,txt,snort_ip_blocklist,ip
+https://feeds.honeynet.asia/bruteforce/latest-sshbruteforce-unique.csv,csv,honeynet_ip_ssh_bruteforce,ip
+https://feeds.honeynet.asia/bruteforce/latest-telnetbruteforce-unique.csv,csv,honeynet_ip_telnet_bruteforce,ip
+https://s3.i02.estaleiro.serpro.gov.br/blocklist/blocklist.txt,txt,serpro_ip_blocklist,ip
+https://api.cybercure.ai/feed/get_ips?type=json,json,cybercure_ip_blocklist,ip
+https://feodotracker.abuse.ch/downloads/ipblocklist.json,json,feodotracker_abuse_ip_blocklist,ip
+https://lists.blocklist.de/lists/all.txt,txt,list_ip_blocklist_de,ip
